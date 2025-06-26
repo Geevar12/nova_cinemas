@@ -1,12 +1,16 @@
 import express from 'express';
 import { MongoClient, ObjectId } from 'mongodb';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = 'mongodb://localhost:27017'; // Update if your MongoDB URI is different
+// Use Atlas connection string from .env
+const uri = process.env.MONGODB_URI;
 
 async function getMovies(req, res) {
     const client = new MongoClient(uri);
