@@ -11,6 +11,9 @@ app.use(express.json());
 
 // Use Atlas connection string from .env
 const uri = process.env.MONGODB_URI;
+if (!uri) {
+    console.error('MONGODB_URI environment variable is not set.');
+}
 
 async function getMovies(req, res) {
     const client = new MongoClient(uri);
@@ -67,6 +70,7 @@ app.post('/api/login', async (req, res) => {
         }
         res.status(200).json({ message: 'Login successful' });
     } catch (err) {
+        console.error('Login error:', err);
         res.status(500).json({ error: 'Login failed' });
     } finally {
         await client.close();
@@ -247,7 +251,17 @@ app.post('/api/bookings/cancel', async (req, res) => {
     }
 });
 
+
+app.get(/^\/(?!api).*/, (req, res) => {
+	res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
 app.get('/api/movies', getMovies);
+
+// Catch-all for undefined routes
+app.use((req, res) => {
+    res.status(404).json({ error: 'Endpoint not found' });
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
